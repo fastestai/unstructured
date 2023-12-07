@@ -84,6 +84,36 @@ def extract_datetimetz(text: str) -> Optional[datetime.datetime]:
         return None
 
 
+def extract_datetime(text: str) -> Optional[datetime.datetime]:
+    patterns = [
+        EMAIL_DATETIMETZ_PATTERN,
+        r"[A-Za-z]{3}\s\d{2}\s\d{4}",
+        r"[A-Za-z]{3}-\d{2}-\d{4}",
+        r"\d{2}\s\d{2}\s\d{4}",
+        r"\d{2}-\d{2}-\d{4}",
+        r"\d{4}-\d{2}-\d{2}",
+        r"\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}"
+    ]
+    patterns_ts_format = [
+        "%a, %d %b %Y %H:%M:%S %z",
+        "%b %d %Y",
+        "%b-%d-%Y",
+        "%m %d %Y",
+        "%m-%d-%Y",
+        "%Y-%m-%d",
+        "%Y-%m-%d  %H:%M:%S"
+    ]
+
+    def ts_findall(ts):
+        for index, pattern in enumerate(patterns):
+            date_extractions = re.findall(pattern, ts)
+            if len(date_extractions) > 0:
+                return datetime.datetime.strptime(date_extractions[0], patterns_ts_format[index])
+        return None
+
+    return ts_findall(text)
+
+
 def extract_us_phone_number(text: str):
     """Extracts a US phone number from a section of text that includes a phone number. If there
     is no phone number present, the result will be an empty string.
